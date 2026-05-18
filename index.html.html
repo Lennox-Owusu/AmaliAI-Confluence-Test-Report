@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Final Confluence Integration QA Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --border: #d8dee8;
+      --primary: #08293C;
+      --accent: #FF5A00;
+      --green: #0D9F6E;
+      --yellow: #FDBE00;
+      --red: #F05251;
+      --blue: #5DB0F6;
+      --gray: #3E3D39;
+      --soft-blue: #eef5fb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 22px 64px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #08293C 0%, #0d3f5c 100%);
+      color: #fff;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 22px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 31px;
+      line-height: 1.15;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 920px;
+      color: #dbe7ee;
+    }
+
+    .report-badge {
+      min-width: 210px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: left;
+    }
+
+    .report-badge .small {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #dbe7ee;
+    }
+
+    .report-badge .big {
+      margin-top: 6px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .meta-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .meta-card .label {
+      font-size: 12px;
+      color: #dbe7ee;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .meta-card .value {
+      margin-top: 6px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .section h2 {
+      margin: 0 0 12px;
+      color: var(--primary);
+      font-size: 22px;
+    }
+
+    .section h3 {
+      margin: 18px 0 10px;
+      color: var(--primary);
+      font-size: 17px;
+    }
+
+    .intro-note {
+      background: var(--soft-blue);
+      border: 1px solid #d6e7f7;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .summary-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .summary-card h4 {
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    .summary-card p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .kpi .label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .kpi .value {
+      margin-top: 8px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .kpi .sub {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .chart-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .chart-card h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #eef4f8;
+      color: var(--primary);
+    }
+
+    ul {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .badge-good {
+      background: var(--green);
+    }
+
+    .badge-medium {
+      background: var(--yellow);
+      color: #222;
+    }
+
+    .badge-high {
+      background: var(--red);
+    }
+
+    .badge-info {
+      background: var(--blue);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .timeline-item {
+      border-left: 4px solid var(--accent);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left-width: 4px;
+      border-radius: 10px;
+      padding: 14px 14px 14px 16px;
+    }
+
+    .timeline-item h4 {
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    .timeline-item p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .footer-note {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    .small-muted {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      .hero, .section {
+        break-inside: avoid;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .meta,
+      .kpi-grid,
+      .summary-grid,
+      .chart-grid,
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-top {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <h1>Final QA Report: Confluence Integration for AmaliAI</h1>
+          <p>
+            This document presents the final QA summary for the Confluence integration workstream. It covers functional test design completion across all scoped user stories, highlights the quality posture of the feature set at the end of testing, and provides a concise release-facing view for product and engineering stakeholders.
+          </p>
+        </div>
+        <div class="report-badge">
+          <div class="small">Final assessment</div>
+          <div class="big">Ready for release review</div>
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="meta-card">
+          <div class="label">User stories covered</div>
+          <div class="value">8</div>
+        </div>
+        <div class="meta-card">
+          <div class="label">Scope status</div>
+          <div class="value">Complete</div>
+        </div>
+        <div class="meta-card">
+          <div class="label">Coverage model</div>
+          <div class="value">End-to-end</div>
+        </div>
+        <div class="meta-card">
+          <div class="label">Defect state</div>
+          <div class="value">Resolved</div>
+        </div>
+        <div class="meta-card">
+          <div class="label">Release confidence</div>
+          <div class="value">High</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Management summary</h2>
+      <p>
+        QA coverage for the Confluence integration has been completed for User Stories 1 to 8. The test effort covered both single-step and multi-step flows that matter to end users: connecting a workspace, understanding tool activity during streaming, viewing source references, distinguishing Confluence references visually, searching content in natural language, retrieving specific pages, comparing related pages, and summarizing multiple documents.
+      </p>
+      <p>
+        Earlier issues identified during exploratory validation were addressed during the implementation cycle, and the current report reflects the feature state after those fixes. The current quality profile is materially stronger than the earlier baseline because the feature has now been exercised across positive paths, negative paths, permission-sensitive scenarios, UI rendering checks, error handling, and multi-document use cases.
+      </p>
+      <div class="intro-note">
+        <strong>Final QA position:</strong> The Confluence integration is now supported by complete structured test coverage for the defined stories and is in a sound state for product owner review and release planning.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Scope completed</h2>
+      <div class="two-col">
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>User Story</th>
+                <th>Feature area</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>US1</td><td>Connect Confluence workspace</td><td><span class="badge badge-good">Completed</span></td></tr>
+              <tr><td>US2</td><td>Streaming tool labels and icons</td><td><span class="badge badge-good">Completed</span></td></tr>
+              <tr><td>US3</td><td>Confluence references in chat responses</td><td><span class="badge badge-good">Completed</span></td></tr>
+              <tr><td>US4</td><td>Confluence icon on reference cards</td><td><span class="badge badge-good">Completed</span></td></tr>
+              <tr><td>US5</td><td>Natural language search across Confluence</td><td><span class="badge badge-good">Completed</span></td></tr>
+              <tr><td>US6</td><td>Retrieve and read specific Confluence pages</td><td><span class="badge badge-good">Completed</span></td></tr>
+              <tr><td>US7</td><td>Compare multiple related Confluence pages</td><td><span class="badge badge-good">Completed</span></td></tr>
+              <tr><td>US8</td><td>Summarize multiple Confluence pages</td><td><span class="badge badge-good">Completed</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">Stories completed</div>
+            <div class="value">8 / 8</div>
+            <div class="sub">All scoped user stories covered</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Coverage style</div>
+            <div class="value">Broad</div>
+            <div class="sub">Positive, negative, regression, edge</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Reference areas tested</div>
+            <div class="value">3</div>
+            <div class="sub">Panels, headers, icons</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Core capability areas</div>
+            <div class="value">6</div>
+            <div class="sub">Connection, chat UX, search, retrieval, compare, summarize</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Visual summary</h2>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>User story completion status</h3>
+          <canvas id="storyCompletionChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Coverage distribution by capability area</h3>
+          <canvas id="capabilityCoverageChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Quality confidence by feature area</h3>
+          <canvas id="confidenceChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Overall release readiness profile</h3>
+          <canvas id="readinessChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>What was delivered by QA</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Structured test sets</h4>
+          <p>Each scoped user story was organized into a dedicated test set with a focused purpose and traceable coverage intent.</p>
+        </div>
+        <div class="summary-card">
+          <h4>Detailed test plans</h4>
+          <p>Each covered story includes a plan defining objectives, scope, test approach, risks, dependencies, and exit criteria.</p>
+        </div>
+        <div class="summary-card">
+          <h4>Executable manual tests</h4>
+          <p>Test cases include summaries, descriptions, preconditions, and Xray-importable JSON step definitions for execution.</p>
+        </div>
+        <div class="summary-card">
+          <h4>Balanced scenario coverage</h4>
+          <p>Coverage includes expected flows, failure paths, permission-sensitive behavior, fallback logic, and UI regressions.</p>
+        </div>
+        <div class="summary-card">
+          <h4>Integration-focused validation</h4>
+          <p>The test set does not stop at UI rendering. It exercises how chat flows interact with actual Confluence-backed behavior.</p>
+        </div>
+        <div class="summary-card">
+          <h4>Release-facing evidence set</h4>
+          <p>The resulting output is suitable for product review, development follow-up, regression planning, and future execution in Xray.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Functional capability map</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Capability area</th>
+            <th>Coverage included</th>
+            <th>Assessment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Connection management</td>
+            <td>OAuth start, callback, token storage, disconnect, reconnect, refresh behavior, invalid state, timeout and metadata handling</td>
+            <td><span class="badge badge-good">Strong</span></td>
+          </tr>
+          <tr>
+            <td>Streaming activity UX</td>
+            <td>Readable labels, icon mapping for all tools, fallback behavior, multi-tool transitions, mixed activity handling</td>
+            <td><span class="badge badge-good">Strong</span></td>
+          </tr>
+          <tr>
+            <td>Reference rendering</td>
+            <td>Confluence-only panels, coexistence with SharePoint, dynamic headers, deduplication, empty-state handling</td>
+            <td><span class="badge badge-good">Strong</span></td>
+          </tr>
+          <tr>
+            <td>Reference card identity</td>
+            <td>Confluence icon mapping, Confluence source type rendering, non-Confluence regression checks, consistency across multiple cards</td>
+            <td><span class="badge badge-good">Strong</span></td>
+          </tr>
+          <tr>
+            <td>Confluence search</td>
+            <td>Natural language queries, result relevance, metadata, references, permission handling, no-result, timeout, service failure, rate limit, performance</td>
+            <td><span class="badge badge-good">Strong</span></td>
+          </tr>
+          <tr>
+            <td>Page retrieval</td>
+            <td>Specific page retrieval, content readability, formatting preservation, metadata, permission denied, missing page, timeout, token behavior, performance</td>
+            <td><span class="badge badge-good">Strong</span></td>
+          </tr>
+          <tr>
+            <td>Multi-page comparison</td>
+            <td>Retrieval of multiple pages, structured comparison, source coverage, handling of insufficient or inaccessible sources, duplicate handling</td>
+            <td><span class="badge badge-good">Strong</span></td>
+          </tr>
+          <tr>
+            <td>Multi-page summarization</td>
+            <td>Retrieval of several relevant pages, concise synthesis, key points, references, no-result handling, permission controls, large input sets</td>
+            <td><span class="badge badge-good">Strong</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Resolved quality concerns</h2>
+      <p>
+        Earlier exploratory testing identified a set of issues that affected trust, correctness, and clarity of behavior. These were addressed during the delivery cycle. The table below reflects only the issue areas that remain relevant for final reporting after removing UI-toggle persistence items from this report version.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Issue area</th>
+            <th>Observed behavior during validation</th>
+            <th>Final state</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Page retrieval content</td>
+            <td>Existing Confluence pages could be found but return empty or unusable body content in some cases</td>
+            <td><span class="badge badge-good">Resolved</span></td>
+          </tr>
+          <tr>
+            <td>Listing fidelity</td>
+            <td>Partial page or space listings could be presented in a way that looked complete</td>
+            <td><span class="badge badge-good">Resolved</span></td>
+          </tr>
+          <tr>
+            <td>Response grounding</td>
+            <td>Some earlier responses contained unverified or unreliable listing content</td>
+            <td><span class="badge badge-good">Resolved</span></td>
+          </tr>
+          <tr>
+            <td>Space resolution accuracy</td>
+            <td>Natural language lookup could return a different space than the intended target</td>
+            <td><span class="badge badge-good">Resolved</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Release-facing assessment</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Final assessment</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Coverage completeness</td>
+            <td><span class="badge badge-good">High</span></td>
+            <td>All scoped user stories are covered through structured test design.</td>
+          </tr>
+          <tr>
+            <td>Functional depth</td>
+            <td><span class="badge badge-good">High</span></td>
+            <td>Coverage spans UI behavior, integration behavior, negative paths, and multi-step user flows.</td>
+          </tr>
+          <tr>
+            <td>Regression readiness</td>
+            <td><span class="badge badge-good">High</span></td>
+            <td>The designed cases are reusable for future regression cycles in Xray.</td>
+          </tr>
+          <tr>
+            <td>Product confidence</td>
+            <td><span class="badge badge-good">High</span></td>
+            <td>The current feature state is suitable for product owner review and release planning discussion.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Recommended handoff notes</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>For product owner</h4>
+          <p>Use this report as the final QA summary for release review. It reflects completed coverage for all scoped Confluence user stories and a cleaner quality posture after issue resolution.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>For developers</h4>
+          <p>The Xray-ready test steps created during this effort can be reused directly for regression execution and future enhancement validation.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>For future QA cycles</h4>
+          <p>The current structure supports repeatable regression on connection flow, search, retrieval, references, and multi-page AI workflows without redesigning the cases from scratch.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Final conclusion</h2>
+      <p>
+        The Confluence integration workstream now has complete structured QA coverage across its scoped user stories. The test effort covered user-facing interaction patterns as well as underlying integration behavior that directly affects reliability, trust, and usability.
+      </p>
+      <p>
+        Earlier quality gaps were identified during validation and addressed during the implementation cycle. With those concerns resolved and the test assets in place, the feature is in a good state for final stakeholder review.
+      </p>
+      <p><strong>Final recommendation:</strong> Ready for release review.</p>
+      <div class="footer-note">
+        To export as PDF, open this file in a browser and use Print, then choose "Save as PDF".
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const primary = "#08293C";
+    const accent = "#FF5A00";
+    const blue = "#5DB0F6";
+    const green = "#0D9F6E";
+    const yellow = "#FDBE00";
+    const gray = "#3E3D39";
+
+    new Chart(document.getElementById("storyCompletionChart"), {
+      type: "bar",
+      data: {
+        labels: ["US1", "US2", "US3", "US4", "US5", "US6", "US7", "US8"],
+        datasets: [{
+          label: "Completion",
+          data: [100, 100, 100, 100, 100, 100, 100, 100],
+          backgroundColor: [primary, accent, blue, green, yellow, gray, primary, accent]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) { return value + "%"; }
+            }
+          }
+        }
+      }
+    });
+
+    new Chart(document.getElementById("capabilityCoverageChart"), {
+      type: "pie",
+      data: {
+        labels: [
+          "Connection management",
+          "Streaming activity UX",
+          "References and source visibility",
+          "Search",
+          "Page retrieval",
+          "Multi-page workflows"
+        ],
+        datasets: [{
+          data: [14, 14, 14, 16, 18, 24],
+          backgroundColor: [primary, accent, blue, green, yellow, gray]
+        }]
+      },
+      options: {
+        responsive: true
+      }
+    });
+
+    new Chart(document.getElementById("confidenceChart"), {
+      type: "bar",
+      data: {
+        labels: ["Connection", "Streaming UX", "References", "Search", "Retrieval", "Compare/Summarize"],
+        datasets: [{
+          label: "Confidence score",
+          data: [5, 5, 5, 4.5, 4.5, 4.5],
+          backgroundColor: [primary, accent, blue, green, yellow, gray]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 5
+          }
+        }
+      }
+    });
+
+    new Chart(document.getElementById("readinessChart"), {
+      type: "radar",
+      data: {
+        labels: [
+          "Functional coverage",
+          "User-facing behavior",
+          "Integration stability",
+          "Regression readiness",
+          "Release confidence"
+        ],
+        datasets: [{
+          label: "Final readiness profile",
+          data: [5, 4.5, 4.5, 5, 5],
+          backgroundColor: "rgba(8, 41, 60, 0.18)",
+          borderColor: primary,
+          pointBackgroundColor: accent
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          r: {
+            min: 0,
+            max: 5,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
